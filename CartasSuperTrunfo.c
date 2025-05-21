@@ -1,51 +1,159 @@
-#include <stdio.h>  
+#include <stdio.h>
+#include <string.h>
 
-int main() {
-    // Declaração de variáveis do tipo string (char arrays) com tamanho suficiente
-    char Estado[50];                 
-    char codigoCarta[50];           
-    char nomeCidade[100];           
-
-    // Demais variáveis com tipos apropriados
-    int populacao;
-    float Area;
+// Definição da struct
+typedef struct {
+    char Estado[50];
+    char codigoCarta[50];
+    char nomeCidade[100];
+    unsigned long int populacao;
+    float area;
     float pib;
     int NumeroPontosTuristicos;
+    float densidadePopulacional; // Novo atributo adicionado nivel aventureiro !!
+    float pibPerCapita; // Novo atributo adicionado nivel aventureiro !!
+    float superPoder;  // novo atributo adcionado nivel mestre!!
+} Carta;
 
-    // Entrada do nome do Estado (sem espaços)
+void preencherCarta(Carta *carta, int numero) {
+    printf("\n--- Preenchendo Carta %d ---\n", numero);
+
     printf("Digite o Estado: \n");
-    scanf("%s", Estado);  
+    scanf("%s", carta->Estado);
 
-    // Entrada do código da carta
     printf("Digite o codigo da Carta: \n");
-    scanf("%s", codigoCarta);  
+    scanf("%s", carta->codigoCarta);
 
-    // Entrada do nome da cidade
     printf("Digite o nome da cidade: \n");
-    scanf(" %[^\n]", nomeCidade);  
-    // Lê a linha inteira até a quebra de linha (permite espaços no nome da cidade)
+    scanf(" %[^\n]", carta->nomeCidade); // meu codigo dava um erro sempre nesta inha, pesquisei e encontrei a funcao %[^\n]", apos isso meu codigo voltou a rodar normalmente.
 
-    // Entrada da população (número inteiro)
     printf("Digite a Populacao: \n");
-    scanf("%d", &populacao);  
+    scanf("%lu", &carta->populacao);
 
-    // Entrada da área da cidade (número real)
-    printf("Digite a Area: \n");
-    scanf("%f", &Area);  
+    printf("Digite a Area (em km²): \n");
+    scanf("%f", &carta->area);
 
-    // Entrada do PIB (número real)
-    printf("Digite o PIB: \n");
-    scanf("%f", &pib);  
+    printf("Digite o PIB (em milhões): \n");
+    scanf("%f", &carta->pib);
 
-    // Entrada do número de pontos turísticos (inteiro)
     printf("Digite o numero de pontos turisticos: \n");
-    scanf("%d", &NumeroPontosTuristicos); 
+    scanf("%d", &carta->NumeroPontosTuristicos);
 
-    // Exibição dos dados coletados, com formatação
-    printf("Estado: %s - Codigo da carta: %s - Nome da cidade: %s\n", Estado, codigoCarta, nomeCidade);
-    printf("Populacao: %d - Area: %.2f km²\n", populacao, Area);  
-    printf("PIB: %.2f - Numero de pontos turisticos: %d\n", pib, NumeroPontosTuristicos);
+    carta->densidadePopulacional = carta->populacao / carta->area;
+    carta->pibPerCapita = carta->pib / carta->populacao;
 
-    return 0;  
+    float inversoDensidade = (carta->densidadePopulacional > 0) ? (1.0 / carta->densidadePopulacional) : 0.0;
+
+    carta->superPoder = carta->populacao
+                      + carta->area
+                      + carta->pib
+                      + carta->NumeroPontosTuristicos
+                      + carta->pibPerCapita
+                      + inversoDensidade;
 }
+
+void exibirCarta(Carta carta, int numero) {
+    printf("\n--- Dados da Carta %d ---\n", numero);
+    printf("Estado: %s - Codigo da carta: %s\n", carta.Estado, carta.codigoCarta);
+    printf("Cidade: %s\n", carta.nomeCidade);
+    printf("Populacao: %lu\n", carta.populacao);
+    printf("Area: %.2f km²\n", carta.area);
+    printf("PIB: %.2f milhões\n", carta.pib);
+    printf("Pontos Turísticos: %d\n", carta.NumeroPontosTuristicos);
+    printf("Densidade Populacional: %.2f hab/km²\n", carta.densidadePopulacional);
+    printf("PIB per capita: %.2f\n", carta.pibPerCapita);
+    printf("Super Poder: %.2f \n", carta.superPoder); 
+
+    const char *alerta = (carta.densidadePopulacional > 1000) ? "Atenção: Alta densidade populacional!\n" : "";
+    printf("%s", alerta);
+}
+
+void compararCartas(Carta c1, Carta c2) {
+    int pontos1 = 0;
+    int pontos2 = 0;
+    // NOVA FUNCAO ADICONADA, COMPRACAO DE CARTAS!!
+    printf("\n========================\n");
+    printf("COMPARAÇÃO ENTRE AS CARTAS\n");
+
+    // População
+    const char *resPop = (c1.populacao > c2.populacao) ? "População: Carta 1 vence!\n" :
+                         (c2.populacao > c1.populacao) ? "População: Carta 2 vence!\n" :
+                         "População: Empate!\n";
+    printf("%s", resPop);
+    pontos1 += (c1.populacao > c2.populacao);
+    pontos2 += (c2.populacao > c1.populacao);
+
+    // Área
+    const char *resArea = (c1.area > c2.area) ? "Área: Carta 1 vence!\n" :
+                          (c2.area > c1.area) ? "Área: Carta 2 vence!\n" :
+                          "Área: Empate!\n";
+    printf("%s", resArea);
+    pontos1 += (c1.area > c2.area);
+    pontos2 += (c2.area > c1.area);
+
+    // PIB
+    const char *resPIB = (c1.pib > c2.pib) ? "PIB: Carta 1 vence!\n" :
+                         (c2.pib > c1.pib) ? "PIB: Carta 2 vence!\n" :
+                         "PIB: Empate!\n";
+    printf("%s", resPIB);
+    pontos1 += (c1.pib > c2.pib);
+    pontos2 += (c2.pib > c1.pib);
+
+    // Pontos Turísticos
+    const char *resTur = (c1.NumeroPontosTuristicos > c2.NumeroPontosTuristicos) ? "Pontos Turísticos: Carta 1 vence!\n" :
+                         (c2.NumeroPontosTuristicos > c1.NumeroPontosTuristicos) ? "Pontos Turísticos: Carta 2 vence!\n" :
+                         "Pontos Turísticos: Empate!\n";
+    printf("%s", resTur);
+    pontos1 += (c1.NumeroPontosTuristicos > c2.NumeroPontosTuristicos);
+    pontos2 += (c2.NumeroPontosTuristicos > c1.NumeroPontosTuristicos);
+
+    // PIB per capita
+    const char *resPC = (c1.pibPerCapita > c2.pibPerCapita) ? "PIB per capita: Carta 1 vence!\n" :
+                        (c2.pibPerCapita > c1.pibPerCapita) ? "PIB per capita: Carta 2 vence!\n" :
+                        "PIB per capita: Empate!\n";
+    printf("%s", resPC);
+    pontos1 += (c1.pibPerCapita > c2.pibPerCapita);
+    pontos2 += (c2.pibPerCapita > c1.pibPerCapita);
+
+    // Densidade Populacional (MENOR é melhor)
+    const char *resDens = (c1.densidadePopulacional < c2.densidadePopulacional) ? "Densidade Populacional: Carta 1 vence (MENOR é melhor)!\n" :
+                          (c2.densidadePopulacional < c1.densidadePopulacional) ? "Densidade Populacional: Carta 2 vence (MENOR é melhor)!\n" :
+                          "Densidade Populacional: Empate!\n";
+    printf("%s", resDens);
+    pontos1 += (c1.densidadePopulacional < c2.densidadePopulacional);
+    pontos2 += (c2.densidadePopulacional < c1.densidadePopulacional);
+
+    // Super Poder
+    const char *resSP = (c1.superPoder > c2.superPoder) ? "Super Poder: Carta 1 vence!\n" :
+                        (c2.superPoder > c1.superPoder) ? "Super Poder: Carta 2 vence!\n" :
+                        "Super Poder: Empate!\n";
+    printf("%s", resSP);
+    pontos1 += (c1.superPoder > c2.superPoder);
+    pontos2 += (c2.superPoder > c1.superPoder);
+
+    // Resultado final
+    printf("\nResultado final:\n");
+    printf("Carta 1: %d ponto(s)\n", pontos1);
+    printf("Carta 2: %d ponto(s)\n", pontos2);
+
+    const char *resultadoFinal = (pontos1 > pontos2) ? " Carta 1 é a campeã!\n" :
+                                 (pontos2 > pontos1) ? " Carta 2 é a campeã!\n" :
+                                 " Empate geral!\n";
+    printf("%s", resultadoFinal);
+}
+
+int main() {
+    Carta carta1, carta2;
+
+    preencherCarta(&carta1, 1);
+    preencherCarta(&carta2, 2);
+
+    exibirCarta(carta1, 1);
+    exibirCarta(carta2, 2);
+
+    compararCartas(carta1, carta2);
+
+    return 0;
+}
+
 
